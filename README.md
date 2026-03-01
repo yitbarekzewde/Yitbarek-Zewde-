@@ -568,7 +568,7 @@
             </div>
             
             <p style="margin-top: 30px;">© 2024 Ethiopian Beauty | የኢትዮጵያ ውበት</p>
-            <p style="font-size: 0.9rem; opacity: 0.8;">Made with 💚💛❤️ for Ethiopia</p>
+            <p style="font-size: 0.9rem; opacity: 0.8;">💚💛❤️ This site is developed by Yitbarek Zewde Ethiopia </p>
         </footer>
     </div>
 
