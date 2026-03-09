@@ -555,7 +555,7 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <h3>🇪🇹 Ethiopia Tigray 🇪🇹</h3>
+            <h3>🇪🇹 Ethiopia 🇪🇹</h3>
             <p>📅 13 Months of Sunshine • 13 ወር ፀሐይ</p>
             <p>🌅 Land of the Rising Sun • የፀሐይ መውጫ ምድር</p>
             
