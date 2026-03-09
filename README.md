@@ -449,7 +449,7 @@
         <!-- Header -->
         <header class="header">
             <div class="logo">
-                <div class="logo-inner">🇪🇹</div>
+                <div class="logo-inner"></div>
             </div>
             <h1>የኢትዮጵያ ውበት</h1>
             <h1>Beauty of Ethiopia</h1>
