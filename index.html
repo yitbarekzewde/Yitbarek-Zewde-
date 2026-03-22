@@ -426,19 +426,19 @@
             width: 100%;
             margin-left: 50px;
         }
-       </* Sticky-header with Ethiopian colors (green → yellow → red) */
-    .sticky-header {
+       .sticky-header {
       position: sticky;
       top: 0;
 /* vertical gradient: green → yellow → red */
       background: linear-gradient(to bottom,#00843D,#FCD116,#DA121A);
-      color: #1e2a3a;
-      padding: 1.2rem;
+      color: #000; /* dark text for contrast on light background */
+      padding: 1.rem;
       font-size: 1.5rem;
       font-weight: bold;
       text-align: center;
       z-index: 100;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+     background: repeating-liner-gradient (to bottom,#00843D, 0%,#00843D 33.33%,#FCD1FCD16 66.66%,#DA121A 100%)
     }
     }
 </style>
