@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ethiopian Beauty</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Ethiopian Beauty | የኢትዮጵያ ቀን መቁጠሪያ እና ቅርስ</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
@@ -24,17 +24,53 @@
             --ethiopian-green: #078930;
             --ethiopian-yellow: #FCDD09;
             --ethiopian-red: #DA121A;
+            --eth-green: #00893d;
+            --eth-yellow: #fdb813;
+            --eth-red: #da121a;
+            --glow-green: #22ff00;
+            --glow-yellow: #fff200;
+            --glow-red: #ff0000;
+            --angle: 0deg;
         }
 
-        /* Animated Background */
+        @property --angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        /* ========== STICKY FLAG HEADER (GREEN TOP, YELLOW MIDDLE, RED BOTTOM) ========== */
+        .sticky-flag-header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 48px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .stripe-sticky {
+            width: 100%;
+            height: 33.33%;
+        }
+
+        .stripe-green { background: var(--ethiopian-green); }
+        .stripe-yellow { background: var(--ethiopian-yellow); }
+        .stripe-red { background: var(--ethiopian-red); }
+
+        /* Animated Background (subtle flag wave) */
         .animated-bg {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 11;
+            z-index: 0;
             opacity: 0.1;
+            pointer-events: none;
         }
 
         .flag-stripe {
@@ -44,19 +80,19 @@
             animation: wave 8s ease-in-out infinite;
         }
 
-        .stripe-green {
+        .stripe-green-bg {
             background: var(--ethiopian-green);
             top: 0;
             animation-delay: 0s;
         }
 
-        .stripe-yellow {
+        .stripe-yellow-bg {
             background: var(--ethiopian-yellow);
             top: 33.33vh;
             animation-delay: 0.3s;
         }
 
-        .stripe-red {
+        .stripe-red-bg {
             background: var(--ethiopian-red);
             top: 66.66vh;
             animation-delay: 0.6s;
@@ -69,29 +105,23 @@
 
         /* Main Container */
         .container {
-            max-width: 1200px;
+            max-width: 1280px;
             margin: 0 auto;
             padding: 20px;
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
 
-        /* Header with Animation */
+        /* Header */
         .header {
             text-align: center;
-            padding: 50px 20px;
+            padding: 40px 20px 20px;
             animation: fadeInDown 1.5s ease;
         }
 
         @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .logo {
@@ -113,8 +143,8 @@
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            100% { transform: scale(1.0) rotate(360deg); }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .logo-inner {
@@ -135,14 +165,13 @@
         }
 
         h1 {
-            font-size: 3.5rem;
-            margin: 20px 0;
+            font-size: 2.2rem;
+            margin: 15px 0;
             background: linear-gradient(45deg, var(--ethiopian-green), var(--ethiopian-yellow), var(--ethiopian-red));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             animation: shimmer 3s infinite;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         @keyframes shimmer {
@@ -151,24 +180,309 @@
         }
 
         .subtitle {
+            font-size: 1.2rem;
+            color: #2c2c2c;
+            font-weight: 500;
+        }
+
+        /* ========== FIXED GLOWING BORDER AROUND CALENDAR (PSEUDO-ELEMENT METHOD) ========== */
+        .glow-calendar-wrap {
+            position: relative;
+            border-radius: 2.5rem;
+            margin: 50px 0 60px;
+            background: #fffef7; /* fallback */
+            z-index: 1;
+        }
+
+        /* Animated glowing border pseudo-element */
+        .glow-calendar-wrap::before {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 2.5rem;
+            padding: 6px;
+            background: conic-gradient(from var(--angle), var(--eth-green), var(--eth-yellow), var(--eth-red), var(--eth-green));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            -webkit-mask-composite: xor;
+            animation: spin 3s linear infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes spin { 
+            from { --angle: 0deg; } 
+            to { --angle: 360deg; } 
+        }
+
+        .calendar-module {
+            background: #fffef7;
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .calendar-wrapper {
+            background: #ffffff;
+        }
+
+        /* calendar inner styles */
+        .cal-header {
+            background: linear-gradient(135deg, var(--eth-green), #005a28);
+            color: white;
+            padding: 1rem 1.2rem 0.8rem;
+            text-align: center;
+        }
+
+        .cal-header h3 {
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .year-selector-row {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 6px;
+        }
+
+        .year-selector-row select {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,240,0.6);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .year-selector-row button {
+            background: var(--eth-yellow);
+            border: none;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-weight: 900;
+            font-size: 0.8rem;
+            color: #2c2c2c;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .today-notification {
+            background: #fffef0;
+            margin: 14px 16px 8px;
+            padding: 10px 18px;
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0, 55, 30, 0.1), 0 0 0 1px #e9e3c7 inset;
+            border-left: 8px solid var(--eth-green);
+        }
+
+        .notif-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notif-icon {
+            background: linear-gradient(145deg, var(--eth-green), #007a35);
+            width: 38px;
+            height: 38px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 1.3rem;
-            color: #333;
-            animation: slideIn 1.5s ease;
-            opacity: 0.8;
+            animation: iconSoftRotate 2s infinite ease;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-100px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        @keyframes iconSoftRotate {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            75% { transform: rotate(-3deg); }
+            100% { transform: rotate(0deg); }
         }
 
-        /* Flag Cards Section */
+        .eth-full-date {
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #1f3b2c;
+        }
+
+        .greg-sub {
+            font-size: 0.7rem;
+            color: #b4652a;
+        }
+
+        /* ROTATIONAL ANIMATION FOR TODAY BADGE */
+        .badge-today {
+            background: var(--eth-yellow);
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            animation: badgeRotate 1.5s ease-in-out infinite;
+            transform-origin: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        @keyframes badgeRotate {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(8deg) scale(1.05); background: #f5c542; }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 1.2rem;
+            background: #fffbf0;
+            border-bottom: 1px solid #f0e5cf;
+        }
+
+        .current-month-label {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #1a2a1f;
+        }
+
+        .greg-month-sub {
+            font-size: 0.7rem;
+            color: var(--eth-red);
+            background: #fff0e0;
+            padding: 2px 10px;
+            border-radius: 30px;
+        }
+
+        .nav-btn {
+            background: white;
+            border: 1px solid #e2dbc8;
+            color: var(--eth-green);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.3rem;
+            transition: 0.15s;
+        }
+
+        .nav-btn:active { transform: scale(0.94); }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            background: #faf7ef;
+            padding: 12px 0;
+            font-weight: 800;
+            font-size: 0.75rem;
+            color: #4a3e2b;
+            border-bottom: 2px solid #f0e2cd;
+        }
+
+        .scroll-wrapper {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            touch-action: pan-y;
+            background: white;
+        }
+
+        .grid-container {
+            display: flex;
+            width: 100%;
+            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .month-grid {
+            min-width: 100%;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+
+        .day {
+            height: 72px;
+            border-right: 1px solid #f3edd9;
+            border-bottom: 1px solid #f3edd9;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 8px 6px;
+            position: relative;
+            background: white;
+        }
+
+        .eth-num {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #1e2f1c;
+        }
+
+        .greg-num {
+            font-size: 0.68rem;
+            color: #a7875a;
+            font-weight: 600;
+            align-self: flex-end;
+        }
+
+        /* today cell glow with spinning conic gradient */
+        .day.today::before {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: 12px;
+            padding: 2.5px;
+            background: conic-gradient(from var(--angle), var(--glow-green), var(--glow-yellow), var(--glow-red), var(--glow-green));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            -webkit-mask-composite: xor;
+            animation: spin 2.2s linear infinite;
+            pointer-events: none;
+        }
+
+        .day.feast::after {
+            content: '★';
+            position: absolute;
+            top: 5px;
+            right: 7px;
+            font-size: 9px;
+            color: var(--eth-red);
+            text-shadow: 0 0 3px #ffbb88;
+        }
+
+        .empty { background: #fefcf7; opacity: 0.6; }
+        .swipe-hint {
+            padding: 12px;
+            text-align: center;
+            font-size: 0.6rem;
+            color: #bcab87;
+            font-weight: bold;
+            background: #fef9ed;
+            border-top: 1px solid #f5e6d2;
+        }
+
+        @media (max-width: 550px) {
+            .day { height: 62px; padding: 5px 4px; }
+            .eth-num { font-size: 1rem; }
+            .current-month-label { font-size: 1.2rem; }
+        }
+
+        /* Flag Cards, Stripes, Timeline (Original Beauty Styles) */
         .flag-cards {
             display: flex;
             justify-content: center;
@@ -188,15 +502,12 @@
             position: relative;
             width: 100%;
             height: 100%;
-            text-align: center;
             transition: transform 0.8s;
             transform-style: preserve-3d;
             animation: float 3s ease-in-out infinite;
         }
 
-        .card:hover .card-inner {
-            transform: rotateY(180deg);
-        }
+        .card:hover .card-inner { transform: rotateY(180deg); }
 
         @keyframes float {
             0%, 100% { transform: translateY(0); }
@@ -234,17 +545,6 @@
             padding: 20px;
         }
 
-        .card-back h3 {
-            color: var(--ethiopian-red);
-            margin-bottom: 10px;
-        }
-
-        .card-back p {
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        /* Animated Stripes Section */
         .stripes-showcase {
             margin: 80px 0;
             text-align: center;
@@ -265,33 +565,18 @@
             border-radius: 10px;
         }
 
-        .animated-stripe:nth-child(2) {
-            background: var(--ethiopian-yellow);
-            animation-delay: 0.3s;
-        }
-
-        .animated-stripe:nth-child(3) {
-            background: var(--ethiopian-red);
-            animation-delay: 0.6s;
-        }
+        .animated-stripe:nth-child(2) { background: var(--ethiopian-yellow); animation-delay: 0.3s; }
+        .animated-stripe:nth-child(3) { background: var(--ethiopian-red); animation-delay: 0.6s; }
 
         @keyframes stripeAnimation {
-            0%, 100% { 
-                transform: scaleY(1);
-                border-radius: 10px;
-            }
-            50% { 
-                transform: scaleY(1.5);
-                border-radius: 30px;
-                box-shadow: 0 0 30px currentColor;
-            }
+            0%, 100% { transform: scaleY(1); border-radius: 10px; }
+            50% { transform: scaleY(1.5); border-radius: 30px; box-shadow: 0 0 30px currentColor; }
         }
 
-        /* Ethiopian Pattern */
         .pattern-section {
             margin: 80px 0;
             padding: 40px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.2);
             backdrop-filter: blur(10px);
             border-radius: 20px;
         }
@@ -310,7 +595,7 @@
             animation: bounce 1s ease-in-out infinite;
         }
 
-        .pattern-dot.green { background: var(--ethiopian-green); animation-delay: 0s; }
+        .pattern-dot.green { background: var(--ethiopian-green); }
         .pattern-dot.yellow { background: var(--ethiopian-yellow); animation-delay: 0.2s; }
         .pattern-dot.red { background: var(--ethiopian-red); animation-delay: 0.4s; }
 
@@ -319,7 +604,6 @@
             50% { transform: translateY(-30px); }
         }
 
-        /* Timeline Section */
         .timeline {
             margin: 80px 0;
             position: relative;
@@ -333,10 +617,10 @@
             width: 4px;
             height: 100%;
             background: linear-gradient(to bottom, var(--ethiopian-green), var(--ethiopian-yellow), var(--ethiopian-red));
-            animation: glow 2s ease-in-out infinite;
+            animation: glowLine 2s ease-in-out infinite;
         }
 
-        @keyframes glow {
+        @keyframes glowLine {
             0%, 100% { opacity: 0.5; }
             50% { opacity: 1; }
         }
@@ -345,7 +629,6 @@
             display: flex;
             justify-content: space-between;
             margin: 40px 0;
-            position: relative;
         }
 
         .timeline-content {
@@ -354,35 +637,18 @@
             background: rgba(255,255,255,0.9);
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            animation: slideInLeft 1s ease;
             border-left: 5px solid var(--ethiopian-green);
         }
 
-        .timeline-item:nth-child(even) .timeline-content {
-            border-left: 5px solid var(--ethiopian-red);
-        }
+        .timeline-item:nth-child(even) .timeline-content { border-left: 5px solid var(--ethiopian-red); margin-left: auto; }
 
-        /* Footer */
         .footer {
             text-align: center;
             padding: 40px;
             margin-top: 60px;
             background: linear-gradient(135deg, var(--ethiopian-green), var(--ethiopian-yellow), var(--ethiopian-red));
-
             border-radius: 20px 20px 0 0;
             color: white;
-            animation: gradientShift 5s ease infinite;
-        }
-
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        .footer h3 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .social-links {
@@ -402,16 +668,8 @@
             justify-content: center;
             font-size: 24px;
             cursor: pointer;
-            transition: all 0.3s;
-            animation: socialPulse 2s ease-in-out infinite;
-        }
-
-        social-icon:hover {
-            transform: scale(1.2);
-            background: white;
-            color: var(--ethiopian-red);
-            animation-duration: 1s infinite;
-            transition: transform;
+            transition: 0.3s;
+            animation: socialPulse 2s infinite;
         }
 
         @keyframes socialPulse {
@@ -419,216 +677,250 @@
             50% { transform: scale(1.1); }
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .timeline::before {
-                left: 30px;
-            }
-            
-            .timeline-item {
-                flex-direction: column;
-            }
-            
-            .timeline-content {
-                width: 100%;
-                margin-left: 50px;
-            }
-            .sticky-header {
-                position: sticky;
-                top: 0;
-                z-index: 100;
-                background: repeating-linear-gradient(to bottom,#00843D 0%,#00843D 33.33%,#FCD116 33.33%,#FCD116 66.66%,#DA121A 66.66%,#DA121A 100%);
-               color: #000;
-               padding: 1rem;
-               font-size: 1.5rem;
-               font-weight: bold;
-               text-align: center;
-               animation-delay: 1.1s;
-               box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-           @media .sticky-header {
-               max-width: 760px;
+            h1 { font-size: 1.5rem; }
+            .timeline::before { left: 30px; }
+            .timeline-item { flex-direction: column; }
+            .timeline-content { width: 100%; margin-left: 50px; margin-bottom: 20px; }
+            .timeline-item:nth-child(even) .timeline-content { margin-left: 50px; }
         }
-    
     </style>
 </head>
 <body>
-  
-  <div class="sticky-header"></div>
-    <!-- Animated Flag Background -->
-    <div class="animated-bg">
-        <div class="flag-stripe stripe-green"></div>
-        <div class="flag-stripe stripe-yellow"></div>
-        <div class="flag-stripe stripe-red"></div>
+
+<!-- STICKY FLAG HEADER (GREEN TOP, YELLOW MIDDLE, RED BOTTOM) -->
+<div class="sticky-flag-header">
+    <div class="stripe-sticky stripe-green"></div>
+    <div class="stripe-sticky stripe-yellow"></div>
+    <div class="stripe-sticky stripe-red"></div>
+</div>
+
+<div class="animated-bg">
+    <div class="flag-stripe stripe-green-bg"></div>
+    <div class="flag-stripe stripe-yellow-bg"></div>
+    <div class="flag-stripe stripe-red-bg"></div>
+</div>
+
+<div class="container">
+    <header class="header">
+        <div class="logo">
+            <div class="logo-inner">🇪🇹</div>
+        </div>
+        <h1>ኢትዮጵያ ታበጽሕ እደዊሃ ኀበ እግዚአብሔር ። መዝ ፷፯ ÷፴፩</h1>
+        <h1>ኢትዮጵያ እጆቿን ወደ እግዚአብሔር ትዘረጋለች። መዝ 67÷31</h1>
+        <p class="subtitle">Land of Origins • የትውልድ ምድር • 13 Months of Sunshine</p>
+    </header>
+
+    <!-- GLOWING BORDER CALENDAR (FIXED) -->
+    <div class="glow-calendar-wrap">
+        <div class="calendar-module">
+            <div class="calendar-wrapper">
+                <div class="cal-header">
+                    <h3>📅 የኢትዮጵያ ቀን መቁጠሪያ | Ethiopian Calendar</h3>
+                    <div class="year-selector-row">
+                        <select id="yearSelect"></select>
+                        <button id="todayBtn">ዛሬ አሳይ</button>
+                    </div>
+                </div>
+
+                <!-- Persistent Notification Bar with rotational "Today" badge -->
+                <div id="todayNotificationBar" class="today-notification"></div>
+
+                <div class="nav-controls">
+                    <button id="prevBtn" class="nav-btn">❮</button>
+                    <div style="text-align: center;">
+                        <span class="current-month-label" id="monthLabel">መስከረም</span><br>
+                        <span class="greg-month-sub" id="gregMonthLabel">SEP - OCT</span>
+                    </div>
+                    <button id="nextBtn" class="nav-btn">❯</button>
+                </div>
+
+                <div class="weekdays">
+                    <div>ሰኞ</div><div>ማክሰ</div><div>ረቡዕ</div><div>ሐሙስ</div><div>አርብ</div><div>ቅዳሜ</div><div>እሑድ</div>
+                </div>
+
+                <div class="scroll-wrapper" id="swipeArea">
+                    <div class="grid-container" id="gridContainer"></div>
+                </div>
+                <div class="swipe-hint">👉 ወደ ግራ/ቀኝ ንካ (Swipe left/right) to change month 👈</div>
+            </div>
+        </div>
     </div>
 
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="logo">
-                <div class="logo-inner"></div>
-            </div>
-            <h1>ኢትዮጵያ ታበጽሕ እደዊሃ ኀበ እግዚአብሔር ። መዝ ፷፯ ÷፴፩</h1>
-            <h1>ኢትዮጵያ እጆቿን ወደ እግዚአብሔር ትዘረጋለች። መዝ 67÷31</h1>
-            <p class="subtitle">Land of Origins • የትውልድ ምድር • 13 Months of Sunshine</p>
-        </header>
-
-        <!-- Flag Cards -->
-        <div class="flag-cards">
-            <div class="card" style="animation-delay: 0s">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <span>💚</span>
-                        <span>Green</span>
-                    </div>
-                    <div class="card-back">
-                        <h3>Green</h3>
-                        <p>ለምለም • Lush<br>Land & Fertility<br>የምድር ሀብት</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card" style="animation-delay: 0.2s">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <span>💛</span>
-                        <span>Yellow</span>
-                    </div>
-                    <div class="card-back">
-                        <h3>Yellow</h3>
-                        <p>ወርቅ • Gold<br>Peace & Hope<br>ሰላም እና ተስፋ</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card" style="animation-delay: 0.4s">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <span>❤️</span>
-                        <span>Red</span>
-                    </div>
-                    <div class="card-back">
-                        <h3>Red</h3>
-                        <p>ጀግንነት • Courage<br>Strength & Sacrifice<brጥንካሬ እና መስዋዕትነት</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Animated Stripes -->
-        <div class="stripes-showcase">
-            <h2 style="color: var(--ethiopian-red); margin-bottom: 30px;">The Colors of Ethiopia</h2>
-            <div class="stripes-container">
-                <div class="animated-stripe"></div>
-                <div class="animated-stripe"></div>
-                <div class="animated-stripe"></div>
-            </div>
-        </div>
-
-        <!-- Ethiopian Pattern -->
-        <div class="pattern-section">
-            <h2 style="text-align: center; color: var(--ethiopian-green);">Traditional Pattern</h2>
-            <div class="ethiopian-pattern">
-                <div class="pattern-dot green"></div>
-                <div class="pattern-dot yellow"></div>
-                <div class="pattern-dot red"></div>
-                <div class="pattern-dot green"></div>
-                <div class="pattern-dot yellow"></div>
-                <div class="pattern-dot red"></div>
-                <div class="pattern-dot green"></div>
-                <div class="pattern-dot yellow"></div>
-                <div class="pattern-dot red"></div>
-            </div>
-        </div>
-
-        <!-- Timeline -->
-        <div class="timeline">
-            <h2 style="text-align: center; margin-bottom: 40px; color: var(--ethiopian-yellow);">Ethiopian Heritage</h2>
-            
-            <div class="timeline-item">
-                <div class="timeline-content">
-                    <h3 style="color: var(--ethiopian-green);">🌍 Land of Origins</h3>
-                    <p>Birthplace of mankind, home to Lucy (Dinkinesh) - 3.2 million years old</p>
-                </div>
-                <div class="timeline-content"></div>
-            </div>
-            
-            <div class="timeline-item">
-                <div class="timeline-content"></div>
-                <div class="timeline-content">
-                    <h3 style="color: var(--ethiopian-yellow);">👑 Ancient Kingdom</h3>
-                    <p>One of the oldest civilizations in the world, with over 3000 years of history</p>
-                </div>
-            </div>
-            
-            <div class="timeline-item">
-                <div class="timeline-content">
-                    <h3 style="color: var(--ethiopian-red);">✝️ First Christian Nation</h3>
-                    <p>One of the first countries to adopt Christianity as state religion in 330 AD</p>
-                </div>
-                <div class="timeline-content"></div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <h3>🇪🇹 Ethiopia 🇪🇹</h3>
-            <p>📅 13 Months of Sunshine • 13 ወር ፀሐይ</p>
-            <p>🌅 Land of the Rising Sun • የፀሐይ መውጫ ምድር</p>
-            
-            <div class="social-links">
-                <div class="social-icon">🇪🇹</div>
-                <div class="social-icon">💚</div>
-                <div class="social-icon">💛</div>
-                <div class="social-icon">❤️</div>
-                <div class="social-icon">☀️</div>
-            </div>
-            
-            <p style="margin-top: 30px;">© 2026 Ethiopia ፳፻፲፰</p>
-            <p style="font-size: 0.9rem; opacity: 0.8; color: golden 100%;">This website is developed by Yitbarek Zewde💚💛❤️</p>
-        </footer>
+    <!-- Flag Cards -->
+    <div class="flag-cards">
+        <div class="card"><div class="card-inner"><div class="card-front"><span>💚</span><span>Green</span></div><div class="card-back"><h3>Green</h3><p>ለምለም • Lush<br>Land & Fertility</p></div></div></div>
+        <div class="card"><div class="card-inner"><div class="card-front"><span>💛</span><span>Yellow</span></div><div class="card-back"><h3>Yellow</h3><p>ወርቅ • Gold<br>Peace & Hope</p></div></div></div>
+        <div class="card"><div class="card-inner"><div class="card-front"><span>❤️</span><span>Red</span></div><div class="card-back"><h3>Red</h3><p>ጀግንነት • Courage<br>Strength & Sacrifice</p></div></div></div>
     </div>
 
-    <!-- Floating Particles -->
-    <script>
-        // Add floating particles effect
-        document.addEventListener('DOMContentLoaded', function() {
-            const colors = ['#078930', '#FCDD09', '#DA121A'];
-            
-            for(let i = 0; i < 30; i++) {
-                const particle = document.createElement('div');
-                particle.style.position = 'fixed';
-                particle.style.width = '10px';
-                particle.style.height = '10px';
-                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                particle.style.borderRadius = '50%';
-                particle.style.pointerEvents = 'none';
-                particle.style.zIndex = '0';
-                particle.style.opacity = '0.3';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.animation = `floatParticle ${5 + Math.random() * 10}s linear infinite`;
-                
-                const style = document.createElement('style');
-                style.innerHTML = `
-                    @keyframes floatParticle {
-                        0% {
-                            transform: translate(0, 0) rotate(0deg);
-                        }
-                        100% {
-                            transform: translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 - 100}px) rotate(360deg);
-                        }
-                    }
-                `;
-                document.head.appendChild(style);
-                
-                document.body.appendChild(particle);
+    <!-- Animated Stripes -->
+    <div class="stripes-showcase">
+        <h2 style="color: var(--ethiopian-red);">The Colors of Ethiopia</h2>
+        <div class="stripes-container">
+            <div class="animated-stripe"></div>
+            <div class="animated-stripe"></div>
+            <div class="animated-stripe"></div>
+        </div>
+    </div>
+
+    <!-- Pattern Section -->
+    <div class="pattern-section">
+        <h2 style="text-align: center; color: var(--ethiopian-green);">Traditional Pattern</h2>
+        <div class="ethiopian-pattern">
+            <div class="pattern-dot green"></div><div class="pattern-dot yellow"></div><div class="pattern-dot red"></div>
+            <div class="pattern-dot green"></div><div class="pattern-dot yellow"></div><div class="pattern-dot red"></div>
+            <div class="pattern-dot green"></div><div class="pattern-dot yellow"></div><div class="pattern-dot red"></div>
+        </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline">
+        <h2 style="text-align: center; margin-bottom: 40px; color: var(--ethiopian-yellow);">Ethiopian Heritage</h2>
+        <div class="timeline-item"><div class="timeline-content"><h3 style="color: var(--ethiopian-green);">🌍 Land of Origins</h3><p>Birthplace of mankind, home to Lucy (Dinkinesh) - 3.2 million years old</p></div><div class="timeline-content"></div></div>
+        <div class="timeline-item"><div class="timeline-content"></div><div class="timeline-content"><h3 style="color: var(--ethiopian-yellow);">👑 Ancient Kingdom</h3><p>One of the oldest civilizations, over 3000 years of history</p></div></div>
+        <div class="timeline-item"><div class="timeline-content"><h3 style="color: var(--ethiopian-red);">✝️ First Christian Nation</h3><p>Adopted Christianity as state religion in 330 AD</p></div><div class="timeline-content"></div></div>
+    </div>
+
+    <footer class="footer">
+        <h3>🇪🇹 Ethiopia 🇪🇹</h3>
+        <p>📅 13 Months of Sunshine • 13 ወር ፀሐይ</p>
+        <p>🌅 Land of the Rising Sun • የፀሐይ መውጫ ምድር</p>
+        <div class="social-links"><div class="social-icon">🇪🇹</div><div class="social-icon">💚</div><div class="social-icon">💛</div><div class="social-icon">❤️</div><div class="social-icon">☀️</div></div>
+        <p>© 2026 Ethiopia ፳፻፲፰</p>
+        <p style="font-size: 0.9rem;">This website is developed by Yitbarek Zewde 💚💛❤️</p>
+    </footer>
+</div>
+
+<script>
+    // ETHIOPIAN CALENDAR LOGIC
+    const ETH_MONTHS = ["መስከረም", "ጥቅምት", "ህዳር", "ታህሳስ", "ጥር", "የካቲት", "መጋቢት", "ሚያዝያ", "ግንቦት", "ሰኔ", "ሐምሌ", "ነሐሴ", "ጳጉሜ"];
+    const G_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const SINKSAR = {1:1, 7:1, 12:1, 19:1, 21:1, 27:1, 29:1};
+    const WEEKDAY_ETH = ["ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "አርብ", "ቅዳሜ", "እሑድ"];
+
+    function isEthiopianLeap(year) { return year % 4 === 0; }
+
+    function ethiopianToGregorian(ey, em, ed) {
+        const anchorGreg = Date.UTC(2019, 8, 11);
+        let totalDays = 0;
+        for (let y = 2012; y < ey; y++) totalDays += isEthiopianLeap(y) ? 366 : 365;
+        for (let m = 0; m < em; m++) totalDays += (m < 12 ? 30 : (isEthiopianLeap(ey) ? 6 : 5));
+        totalDays += (ed - 1);
+        return new Date(anchorGreg + totalDays * 86400000);
+    }
+
+    function getTodayEthiopian() {
+        const now = new Date();
+        const utcNow = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+        let diff = Math.floor((utcNow - Date.UTC(2019, 8, 11)) / 86400000);
+        let ey = 2012;
+        while (true) {
+            let dy = isEthiopianLeap(ey) ? 366 : 365;
+            if (diff < dy) break;
+            diff -= dy; ey++;
+        }
+        let em = 0;
+        while (em < 13) {
+            let dm = (em < 12) ? 30 : (isEthiopianLeap(ey) ? 6 : 5);
+            if (diff < dm) break;
+            diff -= dm; em++;
+        }
+        return { y: ey, m: em, d: diff + 1 };
+    }
+
+    let todayEth = getTodayEthiopian();
+    let curY = todayEth.y, curM = todayEth.m;
+
+    function updateNotificationBar() {
+        const notif = document.getElementById('todayNotificationBar');
+        if (!notif) return;
+        const gregToday = ethiopianToGregorian(todayEth.y, todayEth.m, todayEth.d);
+        const rawW = gregToday.getUTCDay();
+        const weekdayIdx = (rawW + 6) % 7;
+        const weekdayName = WEEKDAY_ETH[weekdayIdx];
+        const monthName = ETH_MONTHS[todayEth.m];
+        const gregStr = `${G_MONTHS[gregToday.getUTCMonth()]} ${gregToday.getUTCDate()}, ${gregToday.getUTCFullYear()}`;
+        notif.innerHTML = `
+            <div class="notif-left">
+                <div class="notif-icon">📆</div>
+                <div class="notif-text">
+                    <div class="eth-full-date">${weekdayName}፣ ${monthName} ${todayEth.d}፣ ${todayEth.y} ዓ.ም.</div>
+                    <div class="greg-sub">${gregStr} (Gregorian)</div>
+                </div>
+            </div>
+            <div class="badge-today">ዛሬ 🔄</div>
+        `;
+    }
+
+    function render(direction = 0) {
+        const container = document.getElementById('gridContainer');
+        if (!container) return;
+        if (direction !== 0) {
+            container.style.transition = 'none';
+            container.style.transform = `translateX(${direction * 100}%)`;
+            setTimeout(() => {
+                container.style.transition = 'transform 0.4s cubic-bezier(0.23, 1, 0.32, 1)';
+                container.style.transform = 'translateX(0%)';
+            }, 10);
+        }
+        document.getElementById('monthLabel').textContent = ETH_MONTHS[curM];
+        document.getElementById('yearSelect').value = curY;
+        const daysInMonth = (curM < 12) ? 30 : (isEthiopianLeap(curY) ? 6 : 5);
+        const first = ethiopianToGregorian(curY, curM, 1);
+        const last = ethiopianToGregorian(curY, curM, daysInMonth);
+        document.getElementById('gregMonthLabel').textContent = `${G_MONTHS[first.getUTCMonth()]} - ${G_MONTHS[last.getUTCMonth()]}`;
+        container.innerHTML = '';
+        const grid = document.createElement('div');
+        grid.className = 'month-grid';
+        let startWeekday = (first.getUTCDay() + 6) % 7;
+        for (let i = 0; i < 42; i++) {
+            const cell = document.createElement('div');
+            const dayNum = i - startWeekday + 1;
+            if (dayNum > 0 && dayNum <= daysInMonth) {
+                cell.className = 'day';
+                if (curY === todayEth.y && curM === todayEth.m && dayNum === todayEth.d) cell.classList.add('today');
+                if (SINKSAR[dayNum]) cell.classList.add('feast');
+                const gDate = ethiopianToGregorian(curY, curM, dayNum);
+                cell.innerHTML = `<span class="eth-num">${dayNum}</span><span class="greg-num">${gDate.getUTCDate()}</span>`;
+            } else {
+                cell.className = 'day empty';
             }
-        });
-    </script>
+            grid.appendChild(cell);
+        }
+        container.appendChild(grid);
+    }
+
+    function changeMonth(delta) {
+        curM += delta;
+        if (curM < 0) { curM = 12; curY--; }
+        else if (curM > 12) { curM = 0; curY++; }
+        render(-delta);
+    }
+
+    const yearSelect = document.getElementById('yearSelect');
+    for (let y = 2010; y <= 2035; y++) {
+        let opt = document.createElement('option');
+        opt.value = y; opt.textContent = y + " ዓ.ም";
+        yearSelect.appendChild(opt);
+    }
+    yearSelect.value = curY;
+
+    document.getElementById('prevBtn').onclick = () => changeMonth(-1);
+    document.getElementById('nextBtn').onclick = () => changeMonth(1);
+    document.getElementById('todayBtn').onclick = () => { curY = todayEth.y; curM = todayEth.m; render(); };
+    yearSelect.onchange = (e) => { curY = parseInt(e.target.value); render(); };
+
+    const swipeZone = document.getElementById('swipeArea');
+    let startX = 0;
+    swipeZone.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+    swipeZone.addEventListener('touchend', (e) => {
+        let diff = startX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 45) diff > 0 ? changeMonth(1) : changeMonth(-1);
+    });
+
+    updateNotificationBar();
+    render();
+</script>
 </body>
 </html>
