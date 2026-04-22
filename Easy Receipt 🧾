@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>P3 POS | Cloud Storage</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+      import { getFirestore, collection, addDoc, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+      // PASTE YOUR FIREBASE CONFIG HERE
+      const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth();
+      const db = getFirestore(app);
+      const provider = new GoogleAuthProvider();
+
+      // Functions for Login/Logout
+      window.login = () => signInWithPopup(auth, provider);
+      window.logout = () => signOut(auth);
+
+      onAuthStateChanged(auth, (user) => {
+        const ui = document.getElementById('user-ui');
+        if (user) {
+          ui.innerHTML = `<div class="user-chip"><img src="${user.photoURL}">${user.displayName} <button onclick="logout()">Logout</button></div>`;
+          loadStatements(user.uid);
+        } else {
+          ui.innerHTML = `<button class="btn-auth" onclick="login()"><i class="fab fa-google"></i> Sign in to Save Statements</button>`;
+        }
+      });
+
+      window.saveReceiptData = async (data) => {
+        if (!auth.currentUser) return;
+        await addDoc(collection(db, "statements"), {
+          uid: auth.currentUser.uid,
+          date: new Date(),
+          store: data.store,
+          total: data.total
+        });
+        loadStatements(auth.currentUser.uid);
+      };
+
+      async function loadStatements(uid) {
+        const q = query(collection(db, "statements"), where("uid", "==", uid), orderBy("date", "desc"));
+        const snap = await getDocs(q);
+        let h = '<h3>My Statements</h3>';
+        snap.forEach(doc => {
+          const d = doc.data();
+          h += `<div class="history-item"><b>${d.store}</b>: R${d.total.toFixed(2)} <br><small>${d.date.toDate().toLocaleDateString()}</small></div>`;
+        });
+        document.getElementById('history-list').innerHTML = h;
+      }
+    </script>
+
+    <style>
+        :root { --primary: #f97316; --dark: #0f172a; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f1f5f9; font-family: system-ui, sans-serif; padding: 10px; }
+
+        .user-chip { display: flex; align-items: center; gap: 10px; background: white; padding: 5px 15px; border-radius: 50px; font-size: 13px; font-weight: bold; border: 1px solid #ddd; }
+        .user-chip img { width: 25px; border-radius: 50%; }
+        .user-chip button { background: none; color: red; border: none; font-size: 11px; cursor: pointer; width: auto; margin: 0; }
+        .btn-auth { background: #fff; color: #444; border: 1px solid #ddd; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+
+        .container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1.2fr 1fr; gap: 15px; }
+        .panel { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; color: #000 !important; background: white; }
+        .qty-box { width: 65px; font-weight: bold; text-align: center; border: 1px solid var(--primary); }
+        .item-row { display: grid; grid-template-columns: 2fr 1fr 65px auto; gap: 5px; margin-bottom: 5px; align-items: center; }
+
+        .preview-side { display: flex; flex-direction: column; align-items: center; }
+        #receipt-box { background: white; padding: 35px 20px; width: 100%; max-width: 400px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+
+        button { padding: 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px; color: white; }
+        .btn-view { background: var(--dark); }
+        .btn-share { background: #25d366; }
+        .btn-import { background: var(--primary); }
+
+        .history-list { margin-top: 20px; background: #fff; padding: 15px; border-radius: 15px; }
+        .history-item { padding: 10px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div id="user-ui" style="display:flex; justify-content: flex-end; margin-bottom: 10px;"></div>
+
+<div class="container">
+    <div class="panel">
+        <h4 style="color:var(--primary); margin-bottom:10px; text-transform: uppercase;">Bulk Import List</h4>
+        <textarea id="bulkData" placeholder="Huletts 1kg&#10;   500g&#10;Polony 2.5kg 1"></textarea>
+        <button class="btn-import" onclick="importItems()">Process & Add</button>
+
+        <div id="itemList" style="margin-top:20px;"></div>
+        <button style="background:#cbd5e1; color:#1e293b; font-size:11px;" onclick="addEmpty()">+ Add Row Manually</button>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
+            <input type="text" id="store" value="P3 MART">
+            <input type="text" id="client" value="Valued Customer">
+            <input type="number" id="tax" value="15" placeholder="Tax %">
+            <input type="number" id="paid" placeholder="Cash Paid">
+        </div>
+
+        <button class="btn-view" onclick="viewImage()"><i class="fas fa-image"></i> View/Download Receipt</button>
+        <button class="btn-share" onclick="shareToWhatsApp()"><i class="fab fa-whatsapp"></i> Share to WhatsApp</button>
+        
+        <div id="history-list" class="history-list"></div>
+    </div>
+
+    <div class="preview-side">
+        <div id="receipt-box">
+            <div id="receipt-ui"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let cart = [];
+
+    function importItems() {
+        const lines = document.getElementById('bulkData').value.split('\n');
+        lines.forEach(line => {
+            if(!line.trim()) return;
+            const leadingSpaces = line.match(/^\s*/)[0];
+            const cleanLine = line.trim();
+            let parts = cleanLine.split(/\s+/);
+            let qty = 1;
+            if(parts.length > 1) {
+                const lastPart = parts[parts.length-1];
+                if(/^\d+$/.test(lastPart)) qty = parseInt(parts.pop());
+            }
+            cart.push({ id: Date.now()+Math.random(), name: leadingSpaces + parts.join(' '), price: '', qty: qty });
+        });
+        document.getElementById('bulkData').value = '';
+        render();
+    }
+
+    function render() {
+        const list = document.getElementById('itemList');
+        list.innerHTML = cart.map(i => `
+            <div class="item-row">
+                <input type="text" value="${i.name}" onchange="upd(${i.id},'name',this.value)">
+                <input type="number" placeholder="Price" value="${i.price}" oninput="upd(${i.id},'price',this.value)">
+                <input type="number" class="qty-box" value="${i.qty}" oninput="upd(${i.id},'qty',this.value)">
+                <i class="fas fa-trash-alt" style="color:#ef4444; cursor:pointer;" onclick="del(${i.id})"></i>
+            </div>
+        `).join('');
+        updateUI();
+    }
+
+    function upd(id, f, v) { let item = cart.find(x => x.id === id); if(item) item[f] = v; updateUI(); }
+    function del(id) { cart = cart.filter(x => x.id !== id); render(); }
+    function addEmpty() { cart.push({ id: Date.now(), name: "Item", price: '', qty: 1 }); render(); }
+
+    function updateUI() {
+        let sub = cart.reduce((s, i) => s + (parseFloat(i.price||0) * parseInt(i.qty||1)), 0);
+        let txVal = sub * (parseFloat(document.getElementById('tax').value||0)/100);
+        let total = sub + txVal;
+        let pd = parseFloat(document.getElementById('paid').value)||0;
+
+        document.getElementById('receipt-ui').innerHTML = `
+            <div style="text-align:center; color:#000; font-family:'Courier New', monospace;">
+                <h1 style="color:var(--primary); text-transform:uppercase; margin-bottom:5px; font-size:22px;">${document.getElementById('store').value}</h1>
+                <p style="font-size:10px;">${new Date().toLocaleString()}</p>
+                <div style="border-top:1px dashed #000; margin:10px 0;"></div>
+                <p style="text-align:left; font-size:11px;"><b>CLIENT:</b> ${document.getElementById('client').value}</p>
+                
+                <table style="width:100%; margin:15px 0; font-size:10px; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid #000; font-weight: bold;">
+                            <th style="text-align:left;">ORDER ITEMS</th>
+                            <th style="text-align:center;">QTY</th>
+                            <th style="text-align:right;">EACH</th>
+                            <th style="text-align:right;">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${cart.map(i => {
+                            let eachPrice = parseFloat(i.price||0);
+                            let itemTotal = eachPrice * parseInt(i.qty||1);
+                            return `<tr><td style="text-align:left; white-space: pre-wrap;">${i.name}</td><td style="text-align:center;">${i.qty}</td><td style="text-align:right;">${eachPrice.toFixed(2)}</td><td style="text-align:right;">${itemTotal.toFixed(2)}</td></tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+                <div style="border-top:1px solid #000; padding-top:8px;"></div>
+                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px;"><span>TOTAL</span><span>R ${total.toFixed(2)}</span></div>
+                <div id="qr-place" style="margin-top:20px; display:flex; justify-content:center;"></div>
+            </div>`;
+        
+        const qr = new QRious({ element: document.createElement('canvas'), value: 'https://yitbarek-zewde.vercel.app/', size: 80 });
+        document.getElementById('qr-place').appendChild(qr.image);
+    }
+
+    async function viewImage() {
+        let sub = cart.reduce((s, i) => s + (parseFloat(i.price||0) * parseInt(i.qty||1)), 0);
+        let total = sub + (sub * (parseFloat(document.getElementById('tax').value||0)/100));
+        
+        if(window.saveReceiptData) {
+            window.saveReceiptData({ store: document.getElementById('store').value, total: total });
+        }
+
+        const canvas = await html2canvas(document.getElementById('receipt-box'), { scale: 3, backgroundColor: "#ffffff" });
+        const url = URL.createObjectURL(await new Promise(r => canvas.toBlob(r, 'image/png')));
+        window.open(url, '_blank');
+    }
+
+    async function shareToWhatsApp() {
+        const canvas = await html2canvas(document.getElementById('receipt-box'), { scale: 3 });
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], 'receipt.png', { type: 'image/png' });
+            if (navigator.share) await navigator.share({ files: [file], title: 'Receipt' });
+        });
+    }
+
+    cart = [{id:1, name:'Sample', price:10, qty:1}];
+    render();
+    document.querySelectorAll('input').forEach(el => el.oninput = updateUI);
+</script>
+</body>
+</html>
