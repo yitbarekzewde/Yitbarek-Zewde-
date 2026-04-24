@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>P3 POS | Cloud Storage</title>
+    <title>Easy Receipt Yitbarek | Cloud Storage</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -13,14 +13,13 @@
       import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
       import { getFirestore, collection, addDoc, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-      // PASTE YOUR FIREBASE CONFIG HERE
       const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT.firebaseapp.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
+        apiKey: "AIzaSyDwNb75fmHYoZkGXluGcJSd2Tk2edsmDEU",
+        authDomain: "yitbarek-zewde.firebaseapp.com",
+        projectId: "yitbarek-zewde",
+        storageBucket: "yitbarek-zewde.firebasestorage.app",
+        messagingSenderId: "563837431390",
+        appId: "1:563837431390:web:687bbe73b595f161524ecf"
       };
 
       const app = initializeApp(firebaseConfig);
@@ -28,38 +27,43 @@
       const db = getFirestore(app);
       const provider = new GoogleAuthProvider();
 
-      // Functions for Login/Logout
       window.login = () => signInWithPopup(auth, provider);
       window.logout = () => signOut(auth);
 
       onAuthStateChanged(auth, (user) => {
         const ui = document.getElementById('user-ui');
         if (user) {
-          ui.innerHTML = `<div class="user-chip"><img src="${user.photoURL}">${user.displayName} <button onclick="logout()">Logout</button></div>`;
+          ui.innerHTML = `
+            <button class="btn-scroll" onclick="document.getElementById('history-list').scrollIntoView({behavior:'smooth'})"><i class="fas fa-history"></i> My Statements</button>
+            <div class="user-chip"><img src="${user.photoURL}"><span>${user.displayName}</span> <button onclick="logout()">Logout</button></div>`;
           loadStatements(user.uid);
         } else {
           ui.innerHTML = `<button class="btn-auth" onclick="login()"><i class="fab fa-google"></i> Sign in to Save Statements</button>`;
+          document.getElementById('history-list').innerHTML = "";
         }
       });
 
       window.saveReceiptData = async (data) => {
         if (!auth.currentUser) return;
-        await addDoc(collection(db, "statements"), {
-          uid: auth.currentUser.uid,
-          date: new Date(),
-          store: data.store,
-          total: data.total
-        });
-        loadStatements(auth.currentUser.uid);
+        try {
+            await addDoc(collection(db, "statements"), {
+              uid: auth.currentUser.uid,
+              date: new Date(),
+              store: data.store,
+              total: data.total
+            });
+            loadStatements(auth.currentUser.uid);
+        } catch (e) { console.error("Error saving:", e); }
       };
 
       async function loadStatements(uid) {
         const q = query(collection(db, "statements"), where("uid", "==", uid), orderBy("date", "desc"));
         const snap = await getDocs(q);
-        let h = '<h3>My Statements</h3>';
+        let h = '<h3 style="margin-bottom:10px; font-size:16px; color:var(--dark);">My Recent Statements</h3>';
+        if(snap.empty) h += "<p style='font-size:12px; color:#94a3b8;'>No saved receipts yet.</p>";
         snap.forEach(doc => {
           const d = doc.data();
-          h += `<div class="history-item"><b>${d.store}</b>: R${d.total.toFixed(2)} <br><small>${d.date.toDate().toLocaleDateString()}</small></div>`;
+          h += `<div class="history-item"><b>${d.store}</b>: R${d.total.toFixed(2)} <br><small>${d.date.toDate().toLocaleString()}</small></div>`;
         });
         document.getElementById('history-list').innerHTML = h;
       }
@@ -67,13 +71,15 @@
 
     <style>
         :root { --primary: #f97316; --dark: #0f172a; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
         body { background: #f1f5f9; font-family: system-ui, sans-serif; padding: 10px; }
 
         .user-chip { display: flex; align-items: center; gap: 10px; background: white; padding: 5px 15px; border-radius: 50px; font-size: 13px; font-weight: bold; border: 1px solid #ddd; }
         .user-chip img { width: 25px; border-radius: 50%; }
-        .user-chip button { background: none; color: red; border: none; font-size: 11px; cursor: pointer; width: auto; margin: 0; }
-        .btn-auth { background: #fff; color: #444; border: 1px solid #ddd; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .user-chip button { background: none; color: #ef4444; border: none; font-size: 11px; cursor: pointer; font-weight: bold; width: auto; margin-left: 10px; }
+        
+        .btn-scroll { background: var(--dark); color: white; border: none; padding: 8px 15px; border-radius: 50px; font-size: 12px; cursor: pointer; margin-right: 10px; font-weight: bold; }
+        .btn-auth { background: #fff; color: #444; border: 1px solid #ddd; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
         .container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1.2fr 1fr; gap: 15px; }
         .panel { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
@@ -82,37 +88,36 @@
         .qty-box { width: 65px; font-weight: bold; text-align: center; border: 1px solid var(--primary); }
         .item-row { display: grid; grid-template-columns: 2fr 1fr 65px auto; gap: 5px; margin-bottom: 5px; align-items: center; }
 
-        .preview-side { display: flex; flex-direction: column; align-items: center; }
-        #receipt-box { background: white; padding: 35px 20px; width: 100%; max-width: 400px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        #receipt-box { background: white; padding: 35px 20px; width: 100%; max-width: 400px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin: 0 auto; }
 
         button { padding: 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px; color: white; }
         .btn-view { background: var(--dark); }
         .btn-share { background: #25d366; }
         .btn-import { background: var(--primary); }
 
-        .history-list { margin-top: 20px; background: #fff; padding: 15px; border-radius: 15px; }
-        .history-item { padding: 10px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+        .history-list { margin-top: 25px; background: #f8fafc; padding: 15px; border-radius: 15px; border: 1px solid #e2e8f0; }
+        .history-item { padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #334155; }
 
         @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<div id="user-ui" style="display:flex; justify-content: flex-end; margin-bottom: 10px;"></div>
+<div id="user-ui" style="display:flex; justify-content: flex-end; align-items: center; margin-bottom: 15px; max-width: 1100px; margin-left: auto; margin-right: auto;"></div>
 
 <div class="container">
     <div class="panel">
-        <h4 style="color:var(--primary); margin-bottom:10px; text-transform: uppercase;">Bulk Import List</h4>
-        <textarea id="bulkData" placeholder="Huletts 1kg&#10;   500g&#10;Polony 2.5kg 1"></textarea>
+        <h4 style="color:var(--primary); margin-bottom:10px; text-transform: uppercase;">Stock Order Import List</h4>
+        <textarea id="bulkData" placeholder="Example:&#10;Sugar 1kg 2&#10;   Milk 1L 5"></textarea>
         <button class="btn-import" onclick="importItems()">Process & Add</button>
 
         <div id="itemList" style="margin-top:20px;"></div>
         <button style="background:#cbd5e1; color:#1e293b; font-size:11px;" onclick="addEmpty()">+ Add Row Manually</button>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
-            <input type="text" id="store" value="P3 MART">
+            <input type="text" id="store" value="Tanala Mini Shop">
             <input type="text" id="client" value="Valued Customer">
-            <input type="number" id="tax" value="15" placeholder="Tax %">
+            <input type="number" id="tax" value="0.00" placeholder="Tax %">
             <input type="number" id="paid" placeholder="Cash Paid">
         </div>
 
@@ -179,7 +184,6 @@
                 <p style="font-size:10px;">${new Date().toLocaleString()}</p>
                 <div style="border-top:1px dashed #000; margin:10px 0;"></div>
                 <p style="text-align:left; font-size:11px;"><b>CLIENT:</b> ${document.getElementById('client').value}</p>
-                
                 <table style="width:100%; margin:15px 0; font-size:10px; border-collapse: collapse;">
                     <thead>
                         <tr style="border-bottom: 1px solid #000; font-weight: bold;">
@@ -199,7 +203,12 @@
                 </table>
                 <div style="border-top:1px solid #000; padding-top:8px;"></div>
                 <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px;"><span>TOTAL</span><span>R ${total.toFixed(2)}</span></div>
-                <div id="qr-place" style="margin-top:20px; display:flex; justify-content:center;"></div>
+                
+                <div style="margin-top:20px; display:flex; flex-direction:column; align-items:center;">
+                    <div id="qr-place"></div>
+                    <p style="font-size:10px; font-weight:bold; margin-top:5px; letter-spacing:1px;">SCAN ME</p>
+                    <h6 style="margin-bottom: 0px; color: 00FF00;" >This Receipt is prepared by <strong>Yitbarek Zewde</strong></h6>
+                </div>
             </div>`;
         
         const qr = new QRious({ element: document.createElement('canvas'), value: 'https://yitbarek-zewde.vercel.app/', size: 80 });
@@ -227,7 +236,7 @@
         });
     }
 
-    cart = [{id:1, name:'Sample', price:10, qty:1}];
+    cart = [{id:1, name:'Sample Item', price:10, qty:1}];
     render();
     document.querySelectorAll('input').forEach(el => el.oninput = updateUI);
 </script>
