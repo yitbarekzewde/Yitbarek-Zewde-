@@ -237,7 +237,7 @@ const analytics = getAnalytics(app);
         });
     }
 
-    cart = [{id:1, name:'Sample Item', price:10, qty:1}];
+    cart = [{id:1, name:'Sample Item', price:1, qty:1}];
     render();
     document.querySelectorAll('input').forEach(el => el.oninput = updateUI);
 </script>
