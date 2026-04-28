@@ -14,17 +14,18 @@
       import { getFirestore, collection, addDoc, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
       const firebaseConfig = {
-        apiKey: "AIzaSyDwNb75fmHYoZkGXluGcJSd2Tk2edsmDEU",
-        authDomain: "yitbarek-zewde.firebaseapp.com",
-        projectId: "yitbarek-zewde",
-        storageBucket: "yitbarek-zewde.firebasestorage.app",
-        messagingSenderId: "563837431390",
-        appId: "1:563837431390:web:687bbe73b595f161524ecf"
-      };
+  apiKey: "AIzaSyBYftjbGZSjuRpDdtTpqPRYXrd6y9OF3AI",
+  authDomain: "easy-receipt1.firebaseapp.com",
+  projectId: "easy-receipt1",
+  storageBucket: "easy-receipt1.firebasestorage.app",
+  messagingSenderId: "140939199464",
+  appId: "1:140939199464:web:430ba9a47cecf782989a5d",
+  measurementId: "G-17VSKS04HV"
+};
 
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth();
-      const db = getFirestore(app);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
       const provider = new GoogleAuthProvider();
 
       window.login = () => signInWithPopup(auth, provider);
